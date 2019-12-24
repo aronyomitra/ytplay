@@ -1,0 +1,4 @@
+/data/
+/testing/
+/__pycache__/
+*.ini
