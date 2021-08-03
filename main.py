@@ -47,5 +47,10 @@ player = vlc.MediaPlayer(audioStreamURL)
 player.play()
 
 time.sleep(2)
+print ()
+print (pafylist[choice-1].title)
+print (pafylist[choice-1].author)
+print (pafylist[choice-1].duration)
+
 while player.is_playing():
     time.sleep(1)
