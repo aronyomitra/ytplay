@@ -7,13 +7,36 @@ import time
 query = input("Enter youtube search query: ")
 
 query = query.replace(' ', '+')
-
 url = 'https://youtube.com/results?search_query=' + query
+regex = re.compile(r'watch\?v=(\S{11})')
 
 resp = request.urlopen(url)
 respData = resp.read()
+srespData = str(respData)
 
-videos = re.findall(r'watch\?v=(\S{11})', str(respData))
+instaplay = False
+if ('!p' in query):
+    instaplay = True
+    firstvid = regex.search(srespData)
+    temp = "https://youtube.com/watch?v=" + firstvid[1]
+    p = pafy.new(temp, basic=False)
+    print ()
+    print (p.title)
+    print (p.author)
+    print (p.duration)
+    print ()
+    audioStreamURL = p.getbestaudio().url
+
+    player = vlc.MediaPlayer(audioStreamURL)
+    player.play()
+
+    time.sleep(2)
+    while player.is_playing():
+        time.sleep(1)
+    exit()
+
+videos = re.findall(r'watch\?v=(\S{11})', srespData)
+
 pafylist = []
 
 for i in range (0, 5):
