@@ -34,14 +34,27 @@ if not quickplay:
     print ()
     for i in range (0, len(pafylist)):
         p = pafylist[i]
-        print (str(i+1) + ") " + p.title)
+        try:
+            print (str(i+1) + ") " + p.title)
+        except KeyError:
+            p._ydl_info['like_count'] = 0
+            p._ydl_info['dislike_count'] = 0
+           
+            p._have_basic = True
+            print (str(i+1) + ") " + p.title)
         print (p.author)
         print (p.duration)
         print ()
 
     choice = int(input("\nEnter selection: "))
 
-audioStreamURL = pafylist[choice-1].getbestaudio().url
+try:
+    audioStreamURL = pafylist[choice-1].getbestaudio().url
+except KeyError:
+    # pafylist[choice-1].likes = 0; pafylist[choice-1].dislikes = 0
+    pafylist[choice-1]._have_basic = True
+    audioStreamURL = pafylist[choice-1].getbestaudio().url
+
 
 player = vlc.MediaPlayer(audioStreamURL)
 player.play()
