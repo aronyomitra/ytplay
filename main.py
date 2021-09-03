@@ -51,7 +51,6 @@ if not quickplay:
 try:
     audioStreamURL = pafylist[choice-1].getbestaudio().url
 except KeyError:
-    # pafylist[choice-1].likes = 0; pafylist[choice-1].dislikes = 0
     pafylist[choice-1]._have_basic = True
     audioStreamURL = pafylist[choice-1].getbestaudio().url
 
@@ -64,6 +63,54 @@ print ()
 print (pafylist[choice-1].title)
 print (pafylist[choice-1].author)
 print (pafylist[choice-1].duration)
-
-while player.is_playing():
-    time.sleep(1)
+print ("(https://youtube.com/watch?v=" + pafylist[choice-1].videoid + ")")
+while True:
+    comm = input ("\n>>")
+    if comm == "p":
+        if player.get_state() == vlc.State.Playing:
+            print ("Paused")
+        elif player.get_state() == vlc.State.Ended or player.get_state() == vlc.State.Stopped:
+            print ("Track has ended")
+        else:
+            print ("Resumed")
+        player.pause()
+    elif comm == 's':
+        player.stop()
+        print ("Stopped")
+    elif comm == 'restart':
+        print ("Restarting track")
+        player.stop()
+        player.play()
+    elif comm == 'r':
+        player.set_time(player.get_time() + 10000)
+    elif comm == 'l':
+        player.set_time(player.get_time() - 10000)
+    elif comm == 'q':
+        break
+    elif comm == 'v+':
+        player.audio_set_volume(player.audio_get_volume() + 10)
+        time.sleep(1)
+        print ("Volume: " + str(player.audio_get_volume()))
+    elif comm == 'v-':
+        player.audio_set_volume(player.audio_get_volume() - 10)
+        time.sleep(1)
+        print ("Volume: " + str(player.audio_get_volume()))
+    elif comm == 'mute':
+        player.audio_toggle_mute()
+    elif comm == 'status':
+        print(player.get_state())
+    elif comm == 'np':
+        print ("Now Playing: " + pafylist[choice-1].title)
+        pos = player.get_position()
+        pos = int(pos*30 + 1)
+        print ("[", end='')
+        for i in range(1, pos):
+            print("=", end='')
+        print ("o", end='')
+        for i in range (pos, 30):
+            print ("-", end='')
+        print ("]")
+        if player.get_state() == vlc.State.Paused:
+            print ("Paused")
+    else:
+        print ("Invalid command. Try '?' for help")
