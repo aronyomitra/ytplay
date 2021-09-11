@@ -52,8 +52,21 @@ while True:
             print (p.duration)
             print ()
 
-        choice = int(input("\nEnter selection: "))
-        p = pafylist[choice-1]
+        choice = input("\nEnter selection (x to cancel): ")
+        if choice == 'x':
+            continue
+        
+        try:
+            nchoice = int(choice)
+        except ValueError:
+            print ("Please enter an integer in the range")
+            continue
+        
+        if nchoice < 1 or nchoice > searchLen:
+            print ("Please enter an integer in the range")
+            continue
+
+        p = pafylist[nchoice-1]
         audioStreamURL = p.getbestaudio().url
 
         print ()
