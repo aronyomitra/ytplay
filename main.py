@@ -4,12 +4,22 @@ import pafy
 import vlc
 import time
 
+'''This is a small CLI program to search for audio on Youtube and play it using libVLC. We will use pafy (https://pypi.org/project/pafy/)
+to obtain information about a specific video - title, author, duration, and most importantly, get a streaming URL for the audio, which
+we will feed into the libVLC instance to play music. Continuous input is taken from the user and commands are parsed using the re module.
+It is possible to change songs, pause, seek etc all using the same interface. Note that using input() here is non-blocking as the libVLC
+player is multithreaded'''
+
+# Compile Regexes to check commands later on
 regex1 = re.compile(r'watch\?v=(\S{11})')
 regex2 = re.compile(r'^!s(earch)?(( +\S+)+)$', re.IGNORECASE)
 regex3 = re.compile(r'^!p(lay)?(( +\S+)+)$', re.IGNORECASE)
 # regex4 = re.compile(r'^!p(lay)? ((https://)?(www.)?youtube.com/watch\?v=\S{11})$', re.IGNORECASE)
+
+# Default number of search results
 searchLen = 5
 
+# Create a VLC MediaPlayer object which will play media when fed a streaming URL(MRL)
 vlcInstance = vlc.Instance("--verbose=-1", "--no-video")
 player = vlcInstance.media_player_new()
 
@@ -24,18 +34,24 @@ while True:
     x = regex2.match(command)
     y = regex3.match(command)
     
+    # Search command
     if x:
+        # Replace spaces with + to get search page url (a bit crude, will implement better soln later)
         searchquery = x.group(2).strip().replace(' ', '+')
         url = 'https://youtube.com/results?search_query=' + searchquery
         resp = request.urlopen(url)
         respData = resp.read()
+        # Convert byte data into string
         srespData = str(respData)
 
         pafylist = []
         start = 0
+        # Fill list with pafy objects
         for i in range (0, searchLen):
             match = regex1.search(srespData, start)
             temp = 'https://youtube.com/watch?v=' + match[1]
+            # The basic=False flag stops pafy from retrieving video information right after initialization
+            # Design choice to reduce perceived latency
             p = pafy.new(temp, basic = False)
             pafylist.append(p)
             start = match.end()
@@ -43,6 +59,7 @@ while True:
         print()
         for i in range (0, len(pafylist)):
             p = pafylist[i]
+            # A certain bug in pafy code can cause videos with zero likes to cause a crash. This eliminates that possibility
             try:
                 print (str(i+1) + ") " + p.title)
             except KeyError:
@@ -78,6 +95,7 @@ while True:
         player.set_mrl(audioStreamURL)
         player.play()
     
+    # Play command - Play the first option in seach results
     elif y:
         searchquery = y.group(2).strip().replace(' ', '+')
         url = 'https://youtube.com/results?search_query=' + searchquery
@@ -88,11 +106,12 @@ while True:
         
         match = regex1.search(srespData)
         url = 'https://youtube.com/watch?v=' + match[1]
+
+        p = pafy.new(url, basic=False)
         try:
-            p = pafy.new(url)
+            test = p.title
         except KeyError:
             p._have_basic = True
-            p = pafy.new(url)
         
         audioStreamURL = p.getbestaudio().url
         
@@ -144,6 +163,7 @@ while True:
     elif command == 'status':
         print(player.get_state())
 
+    # Nowplaying command displays a neat progress bar
     elif command == 'np' or command == "nowplaying":
         print ("Now Playing: " + p.title)
         pos = player.get_position()
@@ -158,6 +178,7 @@ while True:
         if player.get_state() == vlc.State.Paused:
             print ("Paused")
     
+    # Forward, default 10 seconds
     elif 'fw' in command:
         x = re.match(r'^fw( \d+)?$', command)
         if x:
@@ -170,6 +191,7 @@ while True:
             pass
             # error msg
     
+    # Rewind, default 10 seconds
     elif 'rw' in command:
         x = re.match(r'^rw( \d+)?$', command)
         if x:
@@ -182,6 +204,7 @@ while True:
             pass
             # error
     
+    # Seek to a specific time or percent completed
     elif 'seek' in command:
         x = re.match(r'^seek (\d+)%?$', command)
         if x:
