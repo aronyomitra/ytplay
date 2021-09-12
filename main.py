@@ -126,6 +126,7 @@ while True:
 
     command = command.lower()
 
+    # Media control commands
     if command == 'pause' or command == 'p':
         state = player.get_state()
         if state == vlc.State.Playing:
@@ -189,7 +190,7 @@ while True:
             player.set_time(player.get_time() + delta*1000)
         else:
             pass
-            # error msg
+            print ("Invalid command. Try entering '?' for help")
     
     # Rewind, default 10 seconds
     elif 'rw' in command:
@@ -202,7 +203,7 @@ while True:
             player.set_time(player.get_time() - delta*1000)
         else:
             pass
-            # error
+            print ("Invalid command. Try entering '?' for help")
     
     # Seek to a specific time or percent completed
     elif 'seek' in command:
@@ -217,7 +218,37 @@ while True:
                 player.set_time(t*1000)
         else:
             pass
-            #error
+            print ("Invalid command. Try entering '?' for help")
     
-            
+    # HELP
+    elif command == 'help' or command == '?':
+        print ("\nWelcome to ytplay - a lightweight command line Youtube Music Player")
+        print ("-------------------------------------------------------------------")
+        print ("ytplay can search for music on youtube, play it and let you control the media like any other music player.")
+        print ("Only, you interact with it through commands. Here's a list:")
+        print ("\n* Search for music - !search <search term> \t[shortcut - !s]")
+        print ("\teg: !search despacito cover\n\t    !s claire de lune debussy")
+        print ()
+        print ("* Quickplay (searches with the query and plays the first result that comes up) - !play <search term> \t[shortcut - !p]")
+        print ("\teg: !play never gonna give you up\n\t    !p coldplay amsterdam")
+        print ("  Playing a song while another is playing will immediately start playing the new song")
+        print()
+        print ("  The remaining commands do not need a !")
+        print ("* Pause - pause \t[shortcut - p]")
+        print ("* Obtain information on currently playing track - nowplaying \t[shortcut - np]")
+        print ("* Restart track - restart")
+        print ("* Stop track - stop \t[shorcut - s]")
+        print ("* Increase volume - v+")
+        print ("* Decrease volume - v-")
+        print ("* Toggle mute - mute")
+        print ("* Forward by N seconds (default 10 if no number given) - fw N")
+        print ("* Rewind by N seconds (default 10 if no number given) - rw N")
+        print ("* Go to N% position of track - seek N%")
+        print ("    eg: seek 50%")
+        print ("\n* Go to N seconds from beginning of track - seek N")
+        print ("    eg: seek 120 \tgoes to the 2 minute mark")
+        print ("\n* Quit - quit \t[shortcut - q]")            
 
+    else:
+        if not x and not y:
+            print ("Invalid command. Try entering '?' for help")
